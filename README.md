@@ -3,7 +3,7 @@
 Improves the YouTube experience by maximizing video player real-estate and fixing some common annoyances.
 
 * Maximizes player to fit the entire viewport area.
-* Auto-hides the top bar on watch pages for maximum space utilization (will only display when mouse hovers over the top of the page).
+* Auto-hides the top bar on watch pages for maximum space utilization (will only display when mouse hovers over the top of the page for several hundred milliseconds).
 * Auto-pauses other playing videos (in any tab) when playback is started/resumed (supports both watch pages and channel pages, but not embedded videos at the moment).
 * Disables SPF (Structured Page Fragments, AKA red loading bar).
 * Auto-expands video description.
@@ -25,4 +25,4 @@ I tried to organize the code so other developers could benefit from individual f
 
 ## New features and customization
 
-The script is designed as a basic one-size-fits-all solution to improve the YouTube experience for some people. There are currently no plans to add major new features or customization (say similarly to highly customizable scripts such as [YouTube Center](https://github.com/YePpHa/YouTubeCenter) as it would be difficult to maintain on the long term. Improvements for the implementation of the current features and behaviours are planned and suggestions are welcome.
+The script is designed as a basic one-size-fits-all solution to improve the YouTube experience for some people. There are currently no plans to add major new features or customization (say similarly to highly customizable scripts such as [YouTube Center](https://github.com/YePpHa/YouTubeCenter)) as it would be difficult to maintain on the long term. Improvements/expansions of the implementation of the current features and behaviours are planned and suggestions are welcome.
