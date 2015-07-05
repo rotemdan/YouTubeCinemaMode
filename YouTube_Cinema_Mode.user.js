@@ -3,7 +3,7 @@
 // @description Improves the YouTube experience by maximizing video player real-estate and fixing some common annoyances.
 // @license     MIT
 // @match       https://www.youtube.com/*
-// @version     0.2.0
+// @version     0.2.1
 // @run-at      document-start
 // @grant       none
 // @require     https://code.jquery.com/jquery-2.1.4.min.js
