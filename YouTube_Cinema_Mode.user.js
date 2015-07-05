@@ -3,11 +3,11 @@
 // @description Improves the YouTube experience by maximizing video player real-estate and fixing some common annoyances.
 // @license     MIT
 // @match       https://www.youtube.com/*
-// @version     0.1.11
+// @version     0.2.0
 // @run-at      document-start
 // @grant       none
 // @require     https://code.jquery.com/jquery-2.1.4.min.js
-// @namespace   https://greasyfork.org/en/users/4614
+// @namespace   https://github.com/rotemdan/YouTubeCinemaMode
 // ==/UserScript==
 
 ////////////////////////////////////////////////////////////////
@@ -42,6 +42,8 @@ function onDocumentEnd()
 	{
 		installTopBarAutohide();
 		expandVideoDescription();
+		installPlayerAutoFocus();
+		installPlaylistRepositioner();
 	}
 	
 	installPlayerAutoPause();	
@@ -98,10 +100,10 @@ function installFullSizePlayerStylesheet()
 		"<style type='text/css'>" +
 		"body { overflow-x: hidden !important; overflow-y: scroll !important; }" +
 		"#masthead-positioner-height-offset { display: none }" +
-		"#masthead-positioner { visibility: hidden; opacity: 0; transition: opacity 0.3s ease-in-out; }" +
+		"#masthead-positioner { visibility: hidden; opacity: 0; transition: opacity 0.2s ease-in-out; }" +
         ".player-width { width: 100% !important; margin: 0px !important; left: 0px !important; right: 0px !important; }" +		
 		".player-height { height: 100vh !important; }" +
-		"</style>");	
+		"</style>");
 }
 
 // Switch player to theater mode if in default mode.
@@ -114,51 +116,80 @@ function switchPlayerToTheaterMode()
 // Auto shows/hides the top bar when mouse enters/leaves (for use with watch pages).
 function installTopBarAutohide()
 {
-	var topBarHoverTimeout;
+	var topBar = getTopBar();
+	var videoPlayer = getVideoPlayer();
+	var videoPlayerElement = videoPlayer[0];
 	
-	function cancelTopBarHoverTimeout()
+	function topBarIsVisible()
 	{
-		if (topBarHoverTimeout)
+		return topBar.css("visibility") === "visible";
+	}
+	
+	function showTopBar()
+	{
+		topBar.css("visibility", "visible");
+		topBar.css("opacity", "1");
+	}
+	
+	function hideTopBar()
+	{
+		topBar.css("opacity", "0");
+		topBar.css("visibility", "hidden");
+	}
+	
+	function toggleTopBar()
+	{
+		if (topBarIsVisible())
+			hideTopBar();
+		else
+			showTopBar();
+	}
+	
+	function getScrollTop()
+	{
+		return $(document).scrollTop();
+	}
+	
+	function onPageScroll()
+	{
+		if (getScrollTop() > 0)
+			showTopBar();
+		else
+			hideTopBar();
+	}
+	
+	function onKeyDown(e)
+	{
+		if (e.which === 27)
 		{
-			clearTimeout(topBarHoverTimeout);
-			topBarHoverTimeout = undefined;
+			if (getScrollTop() === 0)
+			{
+				toggleTopBar();
+				
+				if (topBarIsVisible())
+					setTimeout(function () { $("input#masthead-search-term").focus() }, 200);
+			}
 		}
 	}
 	
-	$(document).mouseleave(function (e)
+	$(document).on("keydown", onKeyDown);
+	$(document).on("scroll", onPageScroll);
+}
+
+// Continously auto-focus the player whenever the top bar is invisible.
+function installPlayerAutoFocus()
+{
+	function focusPlayer()
 	{
-		cancelTopBarHoverTimeout()
-	});
+		if (getTopBar().css("visibility") !== "visible")
+		{
+			$(".html5-video-player").focus();
+		}
+		
+		setTimeout(focusPlayer, 20);
+	}
 	
-	$(document).mousemove(function (e)
-	{
-		if (e.pageY < 35)
-		{
-			var topBar = $("#masthead-positioner");
-			
-			if (!topBarHoverTimeout && topBar.css("visibility") === "hidden")
-			{
-				topBarHoverTimeout = setTimeout(function ()
-				{
-					topBar.css("visibility", "visible");
-					topBar.css("opacity", "1");
-					
-					function onTopBarMouseLeave()
-					{
-						topBar.css("opacity", "0");
-						topBar.css("visibility", "hidden")					    
-					}
-					
-					$(document).one("mouseleave", onTopBarMouseLeave);
-					$("div#player-api, div#content").one("mouseenter", onTopBarMouseLeave);
-				}, 500);
-			}
-		}
-		else
-		{
-			cancelTopBarHoverTimeout();
-		}
-	});
+	focusPlayer();
 }
 
 // Expands video description
@@ -167,11 +198,32 @@ function expandVideoDescription()
 	$("#action-panel-details").removeClass("yt-uix-expander-collapsed");	
 }
 
+// Correct the positioning of the playlist on window resize. 
+function installPlaylistRepositioner()
+{
+	$("#watch-appbar-playlist").removeClass("player-height");
+	
+	function onResize()
+	{
+		var playlistContainer = $("#watch-appbar-playlist");
+		
+		if (playlistContainer.length === 0)
+			return;
+		
+		var playlistOffset = playlistContainer.offset();
+		playlistOffset.top = $("#watch-header").offset().top;
+		playlistContainer.offset(playlistOffset);
+	}
+	
+	onResize();
+	$(window).resize(onResize);
+}
+
 // Pauses playing videos in other tabs when a video play event is detected (works in both watch and channel page videos)
 function installPlayerAutoPause()
 {
 	// Note: the channel page has another hidden video except the main one (if it exists). The hidden video doesn't have an "src" attribute.
-	var videoPlayer = $('video.html5-main-video').filter(function (index) { return $(this).attr("src") !== undefined});
+	var videoPlayer = getVideoPlayer();
 
 	if (videoPlayer.length === 0)
 	{
@@ -187,12 +239,11 @@ function installPlayerAutoPause()
 	
 	function onVideoPlay()
 	{
-		console.log("play event triggered");
-		unsafeWindow.localStorage["FullSizeYouTubePlayer_PlayingInstanceID"] = instanceID;
+		localStorage["YouTubeCinemaMode_PlayingInstanceID"] = instanceID;
 		
 		function pauseWhenAnotherPlayerStartsPlaying()
 		{
-			if (unsafeWindow.localStorage["FullSizeYouTubePlayer_PlayingInstanceID"] !== instanceID)
+			if (localStorage["YouTubeCinemaMode_PlayingInstanceID"] !== instanceID)
 				videoPlayerElement.pause();
 			else
 				setTimeout(pauseWhenAnotherPlayerStartsPlaying, 10);
@@ -207,4 +258,16 @@ function installPlayerAutoPause()
 	
 	// Add event handler for the "play" event.
 	videoPlayer.on("play", onVideoPlay);
+}
+
+// Get the video player element
+function getVideoPlayer()
+{
+	return $('video.html5-main-video').filter(function (index) { return $(this).attr("src") !== undefined});
+}
+
+// Get the top bar element
+function getTopBar()
+{
+	return $("#masthead-positioner");
 }

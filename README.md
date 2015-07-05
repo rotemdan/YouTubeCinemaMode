@@ -3,12 +3,13 @@
 Improves the YouTube experience by maximizing video player real-estate and fixing some common annoyances.
 
 * Maximizes player to fit the entire viewport area.
-* Auto-hides the top bar on watch pages for maximum space utilization (will only display when mouse hovers over the top of the page for several hundred milliseconds).
-* Auto-pauses other playing videos (in any tab) when playback is started/resumed (supports both watch pages and channel pages, but not embedded videos at the moment).
+* Auto-hides the top bar on watch pages for maximum space utilization (will only display when the page is scrolled to the top, and can also be toggled with escape key - which will also focus the search bar).
+* Auto-pauses other playing videos (in any tab) when playback is started/resumed (supports both watch pages and channel pages).
 * Disables SPF (Structured Page Fragments, AKA red loading bar).
+* Auto-focuses the video player to allow keyboard controls to be immediately effective. This happens on load and whenever the top bar is invisible.
 * Auto-expands video description.
 
-Supports the HTML5 player only. Tested with both the latest Firefox and Chrome (using latest Greasemonkey/Tampermonkey). Works with both the current (red/black) player and the newer, transparent one, which can be enabled [here](https://www.youtube.com/testtube) (recommended).
+Supports the HTML5 player only. Tested with both the latest Firefox and Chrome (using the latest Greasemonkey/Tampermonkey). Works with both the current (red/black) player and the newer, transparent one, which can be enabled [here](https://www.youtube.com/testtube) (recommended).
 
 ## Installation
 
@@ -25,4 +26,9 @@ I tried to organize the code so other developers could benefit from individual f
 
 ## New features and customization
 
-The script is designed as a basic one-size-fits-all solution to improve the YouTube experience for some people. There are currently no plans to add major new features or customization (say similarly to highly customizable scripts such as [YouTube Center](https://github.com/YePpHa/YouTubeCenter)) as it would be difficult to maintain on the long term. Improvements/expansions of the implementation of the current features and behaviours are planned and suggestions are welcome.
+The script is designed as a basic one-size-fits-all solution to improve the YouTube experience for some people. There are currently no plans to add major new features or customization (say, similarly to highly customizable scripts such as [YouTube Center](https://github.com/YePpHa/YouTubeCenter)) as it would be difficult and time-consuming to maintain in the long term. Improvements/expansions of the implementation of the current features and behaviours are planned and suggestions are welcome.
+
+## Version history
+
+* 0.2: Added video autofocus. Fixed playlist positioning (in most cases). Changed top bar autohide behavior on watch pages (see description). 
+* 0.1: Initial release.
