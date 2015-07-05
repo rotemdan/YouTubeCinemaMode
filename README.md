@@ -3,7 +3,7 @@
 Improves the YouTube experience by maximizing video player real-estate and fixing some common annoyances.
 
 * Maximizes player to fit the entire viewport area.
-* Auto-hides the top bar on watch pages for maximum space utilization (will only display when the page is scrolled to the top, and can also be toggled with escape key - which will also focus the search bar).
+* Auto-hides the top bar on watch pages for maximum space utilization (will be hidden when the page is scrolled to the top, and can also be toggled with escape key - which will also focus the search bar).
 * Auto-pauses other playing videos (in any tab) when playback is started/resumed (supports both watch pages and channel pages).
 * Disables SPF (Structured Page Fragments, AKA red loading bar).
 * Auto-focuses the video player to allow keyboard controls to be immediately effective. This happens on load and whenever the top bar is invisible.
