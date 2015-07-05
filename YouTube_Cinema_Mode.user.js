@@ -7,7 +7,7 @@
 // @run-at      document-start
 // @grant       none
 // @require     https://code.jquery.com/jquery-2.1.4.min.js
-// @namespace   https://github.com/rotemdan/YouTubeCinemaMode
+// @namespace   https://greasyfork.org/en/users/4614
 // ==/UserScript==
 
 ////////////////////////////////////////////////////////////////
