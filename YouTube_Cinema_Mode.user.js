@@ -2,12 +2,14 @@
 // @name        YouTube Cinema Mode
 // @description Improves the YouTube experience by maximizing video player real-estate and fixing some common annoyances.
 // @license     MIT
+// @author      Rotem Dan <rotemdan@gmail.com>
 // @match       https://www.youtube.com/*
-// @version     0.2.1
+// @version     0.2.2
 // @run-at      document-start
 // @grant       none
 // @require     https://code.jquery.com/jquery-2.1.4.min.js
 // @namespace   https://greasyfork.org/en/users/4614
+// @homepageURL https://github.com/rotemdan/YouTubeCinemaMode
 // ==/UserScript==
 
 ////////////////////////////////////////////////////////////////
@@ -43,6 +45,7 @@ function onDocumentEnd()
 		installTopBarAutohide();
 		expandVideoDescription();
 		installPlayerAutoFocus();
+		installPlayerKeyboardShortcutExtensions();
 		installPlaylistRepositioner();
 	}
 	
@@ -103,6 +106,7 @@ function installFullSizePlayerStylesheet()
 		"#masthead-positioner { visibility: hidden; opacity: 0; transition: opacity 0.2s ease-in-out; }" +
         ".player-width { width: 100% !important; margin: 0px !important; left: 0px !important; right: 0px !important; }" +		
 		".player-height { height: 100vh !important; }" +
+		":focus { outline: 0; }" +
 		"</style>");
 }
 
@@ -113,7 +117,7 @@ function switchPlayerToTheaterMode()
 		$("button.ytp-size-button, div.ytp-size-toggle-large").click();
 }
 
-// Auto shows/hides the top bar when mouse enters/leaves (for use with watch pages).
+// Automatically shows/hides the top bar based on different properties of the view.
 function installTopBarAutohide()
 {
 	var topBar = getTopBar();
@@ -158,6 +162,7 @@ function installTopBarAutohide()
 			hideTopBar();
 	}
 	
+	var searchInput = $("input#masthead-search-term");
 	function onKeyDown(e)
 	{
 		if (e.which === 27)
@@ -167,29 +172,68 @@ function installTopBarAutohide()
 				toggleTopBar();
 				
 				if (topBarIsVisible())
-					setTimeout(function () { $("input#masthead-search-term").focus() }, 200);
+					setTimeout(function () { searchInput.focus() }, 200);
+				
+				e.stopPropagation();
 			}
-		}
+		}	
 	}
 	
+	searchInput.on("keydown", onKeyDown);
 	$(document).on("keydown", onKeyDown);
 	$(document).on("scroll", onPageScroll);
 }
 
-// Continously auto-focus the player whenever the top bar is invisible.
+// Continuously auto-focus the player when some conditions are met.
 function installPlayerAutoFocus()
 {
-	function focusPlayer()
+	function autoFocusIfNeeded()
 	{
-		if (getTopBar().css("visibility") !== "visible")
+		var topbarVisibility = getTopBar().css("visibility");
+		if (topbarVisibility !== undefined)
 		{
-			$(".html5-video-player").focus();
+			if (topbarVisibility === "hidden")
+			{
+				$(".html5-video-player").focus();
+			}
+			//else if ($(".html5-video-player").is(":focus") && $(document).scrollTop() > 0)
+			//{
+			//	$(".html5-video-player").blur();
+			//}
 		}
 		
-		setTimeout(focusPlayer, 20);
+		setTimeout(autoFocusIfNeeded, 20);
 	}
 	
-	focusPlayer();
+	autoFocusIfNeeded();
+}
+
+function installPlayerKeyboardShortcutExtensions()
+{
+	// Install keyboard shortcut extensions
+	function onPlayerKeyDown(e)
+	{
+		if ($(".html5-video-player").is(":focus"))
+		{
+			if (e.ctrlKey)
+			{
+				if (e.which === 37)
+				{
+					var previousButton = $("a.ytp-prev-button, div.ytp-button-prev")[0];
+					if (previousButton)
+						previousButton.click();
+				}
+				else if (e.which === 39)
+				{
+					var nextButton = $("a.ytp-next-button, div.ytp-button-next")[0]
+					if (nextButton)
+						nextButton.click();
+				}
+			}
+		}
+	}
+	
+	$(document).on("keydown", onPlayerKeyDown);	
 }
 
 // Expands video description
@@ -222,7 +266,6 @@ function installPlaylistRepositioner()
 // Pauses playing videos in other tabs when a video play event is detected (works in both watch and channel page videos)
 function installPlayerAutoPause()
 {
-	// Note: the channel page has another hidden video except the main one (if it exists). The hidden video doesn't have an "src" attribute.
 	var videoPlayer = getVideoPlayer();
 
 	if (videoPlayer.length === 0)
@@ -263,6 +306,7 @@ function installPlayerAutoPause()
 // Get the video player element
 function getVideoPlayer()
 {
+	// Note: the channel page has another hidden video except the main one (if it exists). The hidden video doesn't have an "src" attribute.
 	return $('video.html5-main-video').filter(function (index) { return $(this).attr("src") !== undefined});
 }
 
