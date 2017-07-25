@@ -19,7 +19,7 @@ The script is designed as a basic one-size-fits-all set of modifications to enha
 
 ## Running alongside other YouTube enhancements scripts
 
-It may or may not work side-by-side with other YouTube scripts or extensions, conflicting behaviors may possibly be avoided by configuring the secondary script(s).
+It may or may not work side-by-side with various other YouTube scripts or extensions, though conflicting behaviors may possibly be avoided by configuring the secondary script(s).
 
 ## Reusing the code
 
